@@ -8,10 +8,11 @@ const userSchema = mongoose.Schema({
   email: {
     type: String,
     trim: true, // 입력값의 공백이나 그런것을 없애주는 역할을 함
+    unique: 1,
   },
   password: {
     type: String,
-    minlength: 50,
+    minlength: 5,
   },
   lastname: {
     type: String,
