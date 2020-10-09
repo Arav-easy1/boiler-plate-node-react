@@ -6,6 +6,7 @@ const port = 3000; // port 번호를 정하고
 const { User } = require("./models/User");
 // bodyParser도 넣어줌.
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 
 const config = require("./config/key");
 
@@ -14,6 +15,7 @@ const config = require("./config/key");
 app.use(bodyParser.urlencoded({ extended: true }));
 // application/json 타입으로 된것을 분석해서 가져오는 옵션.
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 // npm install mongoose --save 해서 mongodb와 연결하는 라이브러리 설치해주고
 // 요청한다.
@@ -50,7 +52,12 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
   // 요청된 이메일을 DB에 있는지 찾는다.
   User.findOne({ email: req.body.email }, (err, user) => {
-    // 해당하는 이메일을 가진 유저가 없다면 userInfo가 없을테니
+    if (err)
+      return res.json({
+        loginSuccess: false,
+        err,
+      });
+    // 해당하는 이메일을 가진 유저가 없다면 user가 없을테니
     if (!user) {
       return res.json({
         loginSuccess: false,
@@ -59,6 +66,11 @@ app.post("/login", (req, res) => {
     }
     // 요청된 이메일이 DB에 있다면 비밀번호가 맞는지 확인.
     user.comparePassword(req.body.password, (err, isMatch) => {
+      if (err)
+        return res.json({
+          loginSuccess: false,
+          err,
+        });
       if (!isMatch)
         return res.json({
           loginSuccess: false,
@@ -66,7 +78,15 @@ app.post("/login", (req, res) => {
         });
 
       // 비밀번호까지 같다면 토큰을 생성하기.
-      user.generateToken((err, user) => {});
+      user.generateToken((err, user) => {
+        if (err) return res.status(400).send(err);
+        // 토큰을 저장한다. 어디에? 쿠키, 로컬스토리지
+        // x_auth라는 이름으로 user.token에 담긴 값이 쿠키에 저장됨.
+        res.cookie("x_auth", user.token).status(200).json({
+          loginSuccess: true,
+          userId: user._id,
+        });
+      });
     });
   });
 });
