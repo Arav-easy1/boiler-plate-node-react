@@ -56,7 +56,20 @@ userSchema.pre("save", function (next) {
       });
     });
   }
+  // password를 건드리지 않은 경우에는 바로 next()를 써서 빠져나갈 수 있도록 한다. (안쓰면 못 빠져나가고 여기 머물러있음.)
+  else {
+    next();
+  }
 });
+
+userSchema.method.comparePassword = function (plainPassword, cb) {
+  // plainPassword test1234   암호화된 비밀번호 $2b$10$QcN2ClIsBFFTr23VnJnI9ub0WeBcughMhL2CEeXl1GkSDEb86GBca
+  // 이 둘이 같은지를 체크한다.
+  bcrypt.compare(plainPassword, this.password, function (err, isMatch) {
+    if (err) return cb(err);
+    cb(null, isMatch);
+  });
+};
 
 // 이 스키마를 모델로 감싸준다. mongoose.model('이 모델의 이름', 스키마) 넣어주기
 const User = mongoose.model("User", userSchema);
