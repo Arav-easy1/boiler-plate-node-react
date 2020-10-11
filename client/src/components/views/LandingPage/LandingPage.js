@@ -3,7 +3,9 @@ import axios from "axios";
 
 function LandingPage() {
   useEffect(() => {
-    axios.get("/api/hello").then((response) => console.log(response.data));
+    axios.get("/api/hello").then((response) => {
+      console.log(response);
+    });
   }, []);
 
   return <div>LandingPage</div>;
