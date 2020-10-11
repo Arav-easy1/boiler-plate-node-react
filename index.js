@@ -22,7 +22,6 @@ app.use(cookieParser());
 // 요청한다.
 // connect()안에 mongodb cluster connection안에 있는 소스를 copy해서 붙여 넣어주고, 뒤에 설정사항들을 적어준다(안적으면 에러날 확률이 높아짐)
 const mongoose = require("mongoose");
-const auth = require("./middleware/auth");
 mongoose
   .connect(config.mongoURI, {
     useNewUrlParser: true,
@@ -106,6 +105,15 @@ app.get("/api/users/auth", auth, (req, res) => {
     lastname: req.user.lastname,
     role: req.user.role,
     image: req.user.image,
+  });
+});
+
+app.get("/api/users/logout", auth, (req, res) => {
+  User.findOneAndUpdate({ _id: req.user._id }, { token: "" }, (err, user) => {
+    if (err) return res.json({ success: false, err });
+    return res.status(200).send({
+      success: true,
+    });
   });
 });
 
