@@ -1,6 +1,6 @@
 const express = require("express"); // express를 가져와서
 const app = express(); // express앱을 넣어서
-const port = 3000; // port 번호를 정하고
+const port = 5000; // port 번호를 정하고
 
 // 유저 정보를 받아온다.
 const { User } = require("./models/User");
@@ -115,6 +115,10 @@ app.get("/api/users/logout", auth, (req, res) => {
       success: true,
     });
   });
+});
+
+app.get("/api/hello", (req, res) => {
+  res.send("안뇽하세용~");
 });
 
 app.listen(port, () => {
